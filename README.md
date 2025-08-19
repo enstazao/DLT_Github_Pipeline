@@ -59,13 +59,36 @@ In this project, DuckDB is used as the destination and GitHub as the source. How
 
 
 
-## Design Decisions
+# Design Decisions
 
-### Why this API?
+## Why this API?
 GitHub is free, widely used, and familiar to most developers. It provides rich data on issues, comments, labels, and contributors. Also, there’s plenty of material and examples in the **dlt official docs**, which makes learning and extending this pipeline easier.
 
-### How I chosed incremental fields
+## How I chosed incremental fields
 I used `created_at` and `updated_at` to fetch only new or updated issues since the last run. This makes the pipeline efficient and prevents duplicates.
 
-### What we’d do next with more time
+## What we’d do next with more time
 I’d spend more time learning the dlt architecture and understanding the design principles behind it. Then I’d explore use cases that showcase the full power of dlt, aiming to build a project that demonstrates its efficiency, flexibility, and ability to handle complex data pipelines in a simple and elegant way. This could include fetching more GitHub data pull requests, commits, releases, and adding more resources, either from GitHub (like contributors, issues with labels, milestones, repository statistics) or from other sources. Ultimately, I’d build an interactive app that provides deep insights and demonstrates the versatility of dlt.
+
+# Testing Strategy
+
+## Unit Test
+Tests the `filter_valid_issues()` function in isolation to verify it correctly filters GitHub issues, rejecting pull requests, closed issues, and issues with invalid user data while accepting valid open issues.
+
+## Integration Test
+Tests the complete dlt pipeline end-to-end, validating the full data flow from API pagination through data transformation to final output, ensuring all business rules and data integrity are maintained.
+
+## Run Tests
+```bash
+# Run unit tests
+python3 -m pytest unit_test.py -v
+
+OR 
+python -m pytest unit_test.py -v
+
+
+# Run integration tests
+python3 -m pytest integration_test.py -v
+
+OR 
+python -m pytest integration_test.py -v
