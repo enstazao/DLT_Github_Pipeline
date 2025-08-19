@@ -1,12 +1,14 @@
 # GitHub Issues Pipeline with dlt
 
+> **Note:** This was done on Ubuntu. On other OS, commands may need slight adjustments (e.g., Windows uses `\` in paths).
+
 ## What is dlt?
 
 dlt is a minimal, pip-installable Python library for building data pipelines. Similar to how Pandas or NumPy made machine learning accessible to millions, dlt brings the same simplicity and power to data engineering.
 
 ## Use Case: GitHub Issues Pipeline
 
-This project demonstrates how to use dlt to build a pipeline that:
+This project demonstrates how to use DLT to build a pipeline that:
 
 - Fetches open issues from a GitHub repository. 
 - Transforms and filters them (only real issues, not pull requests).
