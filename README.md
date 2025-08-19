@@ -27,6 +27,7 @@ conda activate dlt_env
 
 # 2. Install dlt
 pip install dlt
+pip install -r requirements.txt
 
 # 3. Run the pipeline
 python3 github_api_pipeline.py 
