@@ -29,17 +29,20 @@ conda activate dlt_env
 pip install dlt
 pip install -r requirements.txt
 
-# 3. Run the pipeline
+# 3. Clone the Repository
+git clone https://github.com/enstazao/DLT_Github_Pipeline
+
+# 4. Run the pipeline
 python3 github_api_pipeline.py 
 # OR
 python github_api_pipeline.py
 
-# 4. Inspect the pipeline results
+# 5. Inspect the pipeline results
 dlt pipeline github_issues_pipeline show
 
-# 5. A DuckDB file will be created in the current working directory
+# 6. A DuckDB file will be created in the current working directory
 
-# 6. A Streamlit application will open and display contributions
+# 7. A Streamlit application will open and display contributions
 ```
 
 ## Demo Screenshots
