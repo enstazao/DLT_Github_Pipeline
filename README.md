@@ -76,7 +76,7 @@ GitHub is free, widely used, and familiar to most developers. It provides rich d
 I used `created_at` and `updated_at` to fetch only new or updated issues since the last run. This makes the pipeline efficient and prevents duplicates.
 
 ## What we’d do next with more time
-I’d spend more time learning the dlt architecture and understanding the design principles behind it. Then I’d explore use cases that showcase the full power of dlt, aiming to build a project that demonstrates its efficiency, flexibility, and ability to handle complex data pipelines in a simple and elegant way. This could include fetching more GitHub data pull requests, commits, releases, and adding more resources, either from GitHub (like contributors, issues with labels, milestones, repository statistics) or from other sources. Ultimately, I’d build an interactive app that provides deep insights and demonstrates the versatility of dlt.
+I’d spend more time learning the dlt architecture and understanding the design principles behind it. Then I’d explore use cases that showcase the full power of dlt, aiming to build a project that demonstrates its efficiency, flexibility, and ability to handle complex data pipelines in a simple and elegant way. This could include fetching more GitHub data, pull requests, commits, releases, and adding more resources, either from GitHub (like contributors, issues with labels, milestones, repository statistics) or from other sources. Ultimately, I’d build an interactive app that provides deep insights and demonstrates the versatility of dlt.
 
 # Testing Strategy
 
