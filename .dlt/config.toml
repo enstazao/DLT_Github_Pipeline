@@ -1,0 +1,20 @@
+# put your configuration values here
+
+[runtime]
+log_level="WARNING"  # the system log level of dlt
+# use the dlthub_telemetry setting to enable/disable anonymous usage data reporting, see https://dlthub.com/docs/reference/telemetry
+dlthub_telemetry = true
+
+[sources.github_api_source]
+# GitHub API configuration
+repo_owner = "dlt-hub"
+repo_name = "dlt"
+per_page = 100
+max_contributors = 20
+
+[pipeline]
+# Pipeline configuration
+pipeline_name = "github_issues_pipeline"
+destination = "duckdb"
+dataset_name = "github_issues_data"
+
