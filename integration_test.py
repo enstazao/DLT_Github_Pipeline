@@ -6,8 +6,11 @@ from github_api_pipeline import github_api_source, filter_valid_issues, transfor
 
 def test_complete_pipeline_integration():
     """
-    Comprehensive end-to-end test that verifies the complete dlt pipeline
-    with proper pagination mocking and data integrity checks.
+    End-to-end integration test for the GitHub API pipeline.
+    
+    Validates the complete data flow from API ingestion through transformation
+    to contributor analytics. Tests pagination handling, data filtering, 
+    transformation integrity, and statistical calculations.
     """
     
     # Mock data that simulates GitHub API paginated responses
@@ -52,7 +55,7 @@ def test_complete_pipeline_integration():
             "body": "PR body",
             "assignee": {"login": "user1"},
             "milestone": {"title": "v1.0"},
-            "pull_request": {"url": "https://api.github.com/repos/dlt-hub/dlt/pulls/2"}  # This should be filtered
+            "pull_request": {"url": "https://api.github.com/repos/dlt-hub/dlt/pulls/2"}
         }
     ]
     
@@ -177,15 +180,18 @@ def test_complete_pipeline_integration():
             # Should be a valid ISO timestamp
             pendulum.parse(contributor["latest_activity"])
         
-        print("✓ All data integrity invariants maintained")
-        print("✓ Pagination handled correctly")
-        print("✓ Filtering and transformation working")
-        print("✓ Contributor statistics accurate")
+        print("All data integrity invariants maintained")
+        print("Pagination handled correctly")
+        print("Filtering and transformation working")
+        print("Contributor statistics accurate")
 
 
 def test_direct_resource_execution():
     """
-    Test the resources directly without dlt.testing utilities.
+    Unit test for individual pipeline resource execution.
+    
+    Validates resource-level functionality including data transformation
+    and application of pipeline transformers without full pipeline orchestration.
     """
     # Mock data
     mock_issue = {

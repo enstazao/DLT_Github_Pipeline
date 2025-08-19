@@ -62,4 +62,4 @@ def test_filter_valid_issues_comprehensive():
     }
     assert filter_valid_issues(malformed_user_issue) == False, "Malformed user object should fail"
     
-    print("All filter_valid_issues tests passed! ✓")
+    print("All filter_valid_issues tests passed!")
