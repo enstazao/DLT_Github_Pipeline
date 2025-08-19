@@ -27,10 +27,12 @@ conda activate dlt_env
 
 # 2. Install dlt
 pip install dlt
-pip install -r requirements.txt
 
-# 3. Clone the Repository
+# 3. Clone the Repository & install all dependencies
 git clone https://github.com/enstazao/DLT_Github_Pipeline
+cd DLT_Github_Pipeline
+
+pip install -r requirements.txt
 
 # 4. Run the pipeline
 python3 github_api_pipeline.py 
@@ -85,10 +87,10 @@ Tests the complete dlt pipeline end-to-end, validating the full data flow from A
 ## Run Tests
 ```bash
 # Run unit tests
-python3 -m pytest unit_test.py -v
+  python3 -m pytest unit_tests.py -v
 
 OR 
-python -m pytest unit_test.py -v
+python -m pytest unit_tests.py -v
 
 
 # Run integration tests
