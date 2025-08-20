@@ -72,9 +72,6 @@ In this project, DuckDB is used as the destination and GitHub as the source. How
 ## Why this API?
 GitHub is free, widely used, and familiar to most developers. It provides rich data on issues, comments, labels, and contributors. Also, there’s plenty of material and examples in the **dlt official docs**, which makes learning and extending this pipeline easier.
 
-## How I chosed incremental fields
-I used `created_at` and `updated_at` to fetch only new or updated issues since the last run. This makes the pipeline efficient and prevents duplicates.
-
 ## What we’d do next with more time
 I completed this pipeline in about 4 hours, as I received the email and wanted to submit it quickly. I plan to add logging so that any issues or pipeline progress can be tracked, identify gaps in the code, and further improve it. I also aim to learn more about DLT’s architecture and design principles to explore richer use cases—such as fetching additional GitHub data like pull requests, commits, releases, and other resources. Ultimately, I’d enhance the pipeline and build an interactive app that provides deeper insights and demonstrates the full versatility and efficiency of DLT. I understand that my code may not follow the exact best practices envisioned by the DLT developers, but I plan to continue learning, improve my implementation, and align it more closely with the recommended design patterns and architecture.
 
