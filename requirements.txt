@@ -1,2 +1,4 @@
 dlt[duckdb]>=1.15.0
 pytest
+dlt[workspace]
+numpy
