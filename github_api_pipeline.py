@@ -9,12 +9,6 @@ from dlt.sources.helpers.rest_client.paginators import HeaderLinkPaginator
 def filter_valid_issues(item: Dict[str, Any]) -> bool:
     """
     Decide whether an issue from the GitHub API should be included.
-
-    Keeps only issues (not pull requests) that:
-    - Belong to a valid user with a login
-    - Are currently open
-
-    Returns True if the issue passes all checks, False otherwise.
     """
     try:
         if item.get("pull_request"):
@@ -32,13 +26,6 @@ def filter_valid_issues(item: Dict[str, Any]) -> bool:
 def transform_issue_data(item: Dict[str, Any]) -> Dict[str, Any]:
     """
     Convert raw GitHub issue data into a structured, analysis-ready format.
-
-    Extracts:
-    - Core issue details (id, title, state, timestamps, comments)
-    - Contributor information (login, id, type, profile links)
-    - Metadata (labels, assignee, milestone, body length)
-
-    Returns a cleaned dictionary or None if the transformation fails.
     """
     try:
         user = item.get("user", {})
@@ -69,12 +56,6 @@ def transform_issue_data(item: Dict[str, Any]) -> Dict[str, Any]:
 def github_api_resource(access_token: Optional[str] = dlt.secrets.value):
     """
     A DLT resource that fetches issues from the GitHub API.
-
-    - Uses token-based authentication if available.
-    - Paginates through all open issues.
-    - Filters and transforms issues before yielding them.
-
-    Acts as the main raw data ingestion step for the pipeline.
     """
     url = "https://api.github.com/repos/dlt-hub/dlt/issues"
     auth = BearerTokenAuth(access_token) if access_token else None
@@ -95,14 +76,6 @@ def github_api_resource(access_token: Optional[str] = dlt.secrets.value):
 
 @dlt.transformer
 def normalize_title(issue: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Normalize issue titles for consistency.
-
-    - Strips whitespace
-    - Capitalizes the first letter
-
-    Adds a new field: `normalized_title`.
-    """
     title = issue.get("title", "")
     issue["normalized_title"] = title.strip().capitalize()
     return issue
@@ -110,12 +83,6 @@ def normalize_title(issue: Dict[str, Any]) -> Dict[str, Any]:
 
 @dlt.transformer
 def enrich_with_label_counts(issue: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Enrich each issue with metadata about labels.
-
-    Adds:
-    - `label_count`: total number of labels on the issue
-    """
     labels = issue.get("labels", [])
     issue["label_count"] = len(labels)
     return issue
@@ -125,17 +92,6 @@ def enrich_with_label_counts(issue: Dict[str, Any]) -> Dict[str, Any]:
 
 @dlt.resource(write_disposition="replace")
 def top_contributors_resource(access_token: Optional[str] = dlt.secrets.value):
-    """
-    Aggregate contributor statistics from the fetched issues.
-
-    For each contributor, calculates:
-    - Total issues, comments, and average body length
-    - Issues with assignees or milestones
-    - Labels used and activity recency
-    - A weighted contribution score (issues, comments, metadata)
-
-    Yields contributor-level summaries.
-    """
     contributor_stats = {}
     for issue in github_api_resource(access_token=access_token):
         login = issue.get("contributor_login")
@@ -191,15 +147,6 @@ def top_contributors_resource(access_token: Optional[str] = dlt.secrets.value):
 
 @dlt.source
 def github_api_source(access_token: Optional[str] = dlt.secrets.value):
-    """
-    Define the full GitHub API data source for DLT.
-
-    Includes:
-    - `github_api_resource`: filtered issues with transformations
-    - `top_contributors_resource`: contributor-level analysis
-
-    Returns a list of resources and their transformations.
-    """
     return [
         (github_api_resource(access_token=access_token)
          | normalize_title
@@ -208,14 +155,12 @@ def github_api_source(access_token: Optional[str] = dlt.secrets.value):
     ]
 
 
-# ------------------ DISPLAY ------------------
+# ------------------ DISPLAY (FIXED) ------------------
 
 def display_top_contributors(pipeline) -> None:
     """
     Render a ranked summary of top contributors in table form.
-
-    Queries the loaded DuckDB tables, sorts contributors by
-    contribution score, and prints the top 20 with summary statistics.
+    Uses execute_query to avoid the 'list has no attribute fetchall' error.
     """
     try:
         with pipeline.sql_client() as client:
@@ -234,9 +179,10 @@ def display_top_contributors(pipeline) -> None:
             ORDER BY contribution_score DESC, total_issues DESC
             LIMIT 20
             """
-            result = client.execute_sql(query)
-            rows = result.fetchall()
-            columns = [desc[0] for desc in result.description]
+            # execute_query returns a context manager that provides a cursor
+            with client.execute_query(query) as cursor:
+                rows = cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
 
             if rows:
                 print("\n" + "="*120)
@@ -245,8 +191,15 @@ def display_top_contributors(pipeline) -> None:
                 header = f"{'Rank':<5} {'Login':<20} {'Type':<12} {'Issues':<8} {'Comments':<10} {'Score':<8} {'w/Assignee':<12} {'w/Milestone':<12} {'Labels':<8} {'Latest Activity':<20}"
                 print(header)
                 print("-" * 120)
+                
+                total_issues_sum = 0
+                total_comments_sum = 0
+                
                 for rank, row in enumerate(rows, 1):
                     row_dict = dict(zip(columns, row))
+                    total_issues_sum += row_dict['total_issues']
+                    total_comments_sum += row_dict['total_comments']
+                    
                     print(f"{rank:<5} "
                           f"{str(row_dict['contributor_login'])[:19]:<20} "
                           f"{str(row_dict['contributor_type']):<12} "
@@ -257,21 +210,22 @@ def display_top_contributors(pipeline) -> None:
                           f"{row_dict['issues_with_milestone']:<12} "
                           f"{row_dict['labels_count']:<8} "
                           f"{str(row_dict['latest_activity'])[:19]:<20}")
+                
                 print("="*120)
-                print(f"Total contributors analyzed: {len(rows)}")
-                total_issues = sum(dict(zip(columns, row))['total_issues'] for row in rows)
-                total_comments = sum(dict(zip(columns, row))['total_comments'] for row in rows)
-                print(f"Total issues: {total_issues}")
-                print(f"Total comments: {total_comments}")
+                print(f"Total contributors in top 20: {len(rows)}")
+                print(f"Total issues (top 20): {total_issues_sum}")
+                print(f"Total comments (top 20): {total_comments_sum}")
                 print("="*120)
             else:
                 print("No contributor data found.")
+                
     except Exception as e:
         print(f"Error displaying contributors: {e}")
+        # Fallback to check table existence
         try:
             with pipeline.sql_client() as client:
-                tables_result = client.execute_sql("SHOW TABLES")
-                print(f"Available tables: {tables_result.fetchall()}")
+                tables = client.execute_sql("SHOW TABLES")
+                print(f"Available tables: {tables}")
         except Exception as table_error:
             print(f"Could not list tables: {table_error}")
 
@@ -279,16 +233,6 @@ def display_top_contributors(pipeline) -> None:
 # ------------------ RUN ------------------
 
 def run_source() -> None:
-    """
-    Execute the full GitHub issues ETL pipeline.
-
-    - Creates a DLT pipeline with DuckDB as destination
-    - Runs the `github_api_source`
-    - Loads data into DuckDB
-    - Displays top contributors summary
-
-    Serves as the main entrypoint for end-to-end execution.
-    """
     try:
         pipeline = dlt.pipeline(
             pipeline_name="github_issues_pipeline",
@@ -300,11 +244,10 @@ def run_source() -> None:
         print("\nPipeline Load Information:")
         print("="*50)
         print(load_info)
+        
         display_top_contributors(pipeline)
+        
         print("\nPipeline completed successfully!")
-        print("Data stored includes:")
-        print("- github_api_resource: Filtered GitHub issues (with transformers applied)")
-        print("- top_contributors_resource: Contributor analysis and rankings")
     except Exception as e:
         print(f"Error running pipeline: {e}")
         import traceback
