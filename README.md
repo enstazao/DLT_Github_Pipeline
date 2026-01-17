@@ -36,8 +36,6 @@ cd DLT_Github_Pipeline
 
 pip install -r requirements.txt
 
-pip install dlt[workspace]
-
 # 4. Run the pipeline
 python3 github_api_pipeline.py 
 # OR
